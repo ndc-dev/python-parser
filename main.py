@@ -2,9 +2,9 @@ import json
 import codecs
 import zipfile
 import responder
-from rdflib import Graph, plugin
-from rdflib.serializer import Serializer
-from pprint import pprint
+# from rdflib import Graph, plugin
+# from rdflib.serializer import Serializer
+# from pprint import pprint
 
 api = responder.API()
 
@@ -17,10 +17,9 @@ from collections import namedtuple
 from itertools import takewhile
 
 items = []
-with codecs.open('zips/sample.ttl', 'r', 'utf-8') as file:
+with codecs.open('zips/ndc9.ttl', 'r', 'utf-8') as file:
     for line in file:
         if line.startswith('ndc9:'):
-            print(line)
             buf = [line]
             buf.extend(takewhile(lambda x: x.strip()!='.', file))
             new_buf = []
@@ -97,10 +96,10 @@ with codecs.open('zips/sample.ttl', 'r', 'utf-8') as file:
 # g = g.serialize(format='json-ld', indent=4)
 
 @api.route("/")
-def hello_world(req, resp):
+def index(req, resp):
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
-    resp.media = items
-    # resp.text = "hello, world2!"
+    resp.content = json.dumps(items, ensure_ascii=False)
+    # resp.text = "hello, world!"
 
 if __name__ == '__main__':
     api.run()
