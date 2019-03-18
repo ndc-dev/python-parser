@@ -1,17 +1,15 @@
 [[source]]
+name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-name = "pypi"
-
-[packages]
-responder = "*"
-rdflib-jsonld = "*"
-pyld = "*"
 
 [dev-packages]
 
+[packages]
+responder = "*"
+
 [requires]
-python_version = "3.6"
+python_version = "3.7"
 
 [pipenv]
 allow_prereleases = true
