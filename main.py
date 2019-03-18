@@ -106,7 +106,7 @@ ndc9_items = getNDCItems('ndc9')
 
 @api.route("/")
 def index(req, resp):
-    resp.text = api.template('index.html')
+    resp.content = api.template('index.html')
 
 @api.route("/ndc8")
 def index(req, resp):
