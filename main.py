@@ -22,6 +22,7 @@ def get_ndc_items(ndc_name):
     items = []
     with codecs.open('zips/' + ndc_name + '.ttl', 'r', 'utf-8') as file:
         section_count = 0
+        notations = []
         for line in file:
             if line.startswith(ndc_name + ':'):
                 section_count += 1
@@ -64,9 +65,9 @@ def get_ndc_items(ndc_name):
                 item = {}
 
                 # 1行目の処理 ex) ndc9:000 a ndcv:Section, skos:Concept ;
-                ndm = re.search(r'ndc[8|9]:([^ndcv|skos]+)', line)
-                if ndm:
-                    item['ndc'] = ndm.groups()[0].strip().split(' ')[0] # 000 a の a を削除
+                # ndm = re.search(r'ndc[8|9]:([^ndcv|skos]+)', line)
+                # if ndm:
+                #     item['ndc'] = ndm.groups()[0].strip().split(' ')[0] # 000 a の a を削除
                 nm = re.search(r'ndcv:([^\s]+)', line)
                 if nm:
                     item['ndcv'] = nm.groups()[0].replace(',', '').strip()
@@ -100,7 +101,7 @@ def get_ndc_items(ndc_name):
                         if key=='notation':
                             lm = re.search(r'"?([^"]+)?"', value)
                             if lm:
-                                value = lm.groups()[0].split('．')
+                                value = lm.groups()[0]
                         if key=='relatedMatch' or key=='seeAlso':
                             value = [x.strip() for x in value.split(',')]
                         item[key] = value
@@ -150,41 +151,13 @@ def get_ndc_items(ndc_name):
                 # indexedTerm@ja [Array of Array] 索引語 [(索引,索引の読み),(索引,索引の読み)]
                 # note@ja [Array of String] 
                 # variantOf [String or null]
-                # memberRange [Array of String or null] 中間見出し・範囲項目
                 # seeAlso [Array of String]　分類記号のリスト
                 # related [Array of String]　分類記号のリスト
                 # broader [Array of String]　分類記号のリスト
                 # narrower[Array of String]　分類記号のリスト
 
 
-                # ndc: "071_077",
-                # skos: "Collection",
-                # label: [
-                # "ジャーナリズム",
-                # "新聞--新聞紙"
-                # ],
-                # prefLabel@ja: [
-                # "新聞紙"
-                # ],
-                # notation: [
-                # "071/077"
-                # ],
-                # isVersionOf: "ndc:071_077",
-                # inScheme: "ndc9:",
-                # note: [
-                # "発行地による地理区分で細分できる"
-                # ],
-                # isPartOf: "ndc9:07",
-                # indexedTerm: [ ],
-                # memberRange: {
-                # minInclusive: "071",
-                # maxExclusive: "078"
-                # },
-                # paralell: [
-                # "071"
-                # ],
-
-                print(item)
+                # print(item)
                 type_en = item['ndcv'] if 'ndcv' in item else item['skos']
                 if type_en=='MainClass':
                     type_en = 'Main'
@@ -196,19 +169,22 @@ def get_ndc_items(ndc_name):
                     'Variant': '二者択一項目',
                     'Collection': '中間見出し・範囲項目',
                 }
+                notations.append(item['notation'])
+                notation = [item['notation']]
+                if 'memberRange' in item:
+                    notation = item['memberRange']
+                    print(notation)
                 items.append({
                     'type': type_en,
                     'type@ja': type_ja[type_en],
-                    'ndc': item['ndc'],
                     'scheme': item['inScheme'],
-                    'notation': item['notation'],
+                    'notation': notation,
                     'label@ja': item['label'] if 'label' in item else [],
                     'prefLabel@ja': item['prefLabel@ja'] if 'prefLabel@ja' in item else [],
                     'prefLabel@en': item['prefLabel@en'] if 'prefLabel@en' in item else [],
                     'indexedTerm@ja': item['indexedTerm'],
                     'note@ja': item['note'] if 'note' in item else '',
                     'variantOf': item['variantOf'] if 'variantOf' in item else None,
-                    'memberRange': item['memberRange'] if 'memberRange' in item else None,
                     'seeAlso': item['seeAlso'] if 'seeAlso' in item else [],
                     'related': item['relatedMatch'] if 'relatedMatch' in item else [],
                     'broader': item['broader'] if 'broader' in item else '',
@@ -216,20 +192,42 @@ def get_ndc_items(ndc_name):
                 })
                 # if section_count > 2:
                 #     break
+
+    # 中間見出し・範囲項目のnotationを復元する
+    for item in items:
+        # 中間見出し・範囲項目
+        if len(item['notation']) > 1:
+            rang_notations = []
+            is_range = False
+            for notation in notations:
+                if notation==item['notation']['minInclusive']:
+                    is_range = True
+                    rang_notations.append(notation)
+                elif notation==item['notation']['maxExclusive']:
+                    is_range = False
+                    rang_notations.append(notation)
+                    break
+                else:
+                    if is_range:
+                        rang_notations.append(notation)
+            print(rang_notations)
+            item['notation'] = rang_notations        
     return items
 
 
-def get_category_number(ndc):
-    return ndc.split(' ')[0].split('.')[0].split('_')[0] # 071_07 対策
+def get_category_number(notation):
+    print(notation)
+    return notation.split(' ')[0].split('.')[0].split('/')[0] # 071/07 対策
 
 def get_parallel_labels(items):
     parallel_labels = {}
     for item in items:
-        category_number = get_category_number(item['ndc'])
-        if category_number not in parallel_labels:
-            parallel_labels[category_number] = [item['ndc']]
-        else:
-            parallel_labels[category_number].append(item['ndc'])
+        if len(item['notation']) == 1:
+            category_number = get_category_number(item['notation'][0])
+            if category_number not in parallel_labels:
+                parallel_labels[category_number] = [item['notation'][0]]
+            else:
+                parallel_labels[category_number].append(item['notation'][0])
     return parallel_labels
 
 
@@ -238,19 +236,20 @@ def get_items(ndc):
     parallel_labls = get_parallel_labels(items)
     items_dict = {}
     for item in items:
-        category_number = get_category_number(item['ndc'])
-        if len(category_number)<=2:
-            items_dict[category_number] = {
-                'ndc': item['ndc'],
-                'label@ja': item['label@ja'] if 'label@ja' in item else ''
-            }
+        if len(item['notation']) == 1:
+            category_number = get_category_number(item['notation'])
+            if len(category_number)<=2:
+                items_dict[category_number] = {
+                    'notation': item['notation'],
+                    'label@ja': item['label@ja'] if 'label@ja' in item else ''
+                }
     for item in items:
-        category_number = get_category_number(item['ndc'])
+        category_number = get_category_number(item['notation'])
         item['paralell'] = []
         item['up'] = []
         if category_number in parallel_labls:
             parallel_labels = parallel_labls[category_number]
-            item['paralell'] = [label for label in parallel_labels if label != item['ndc']]
+            item['paralell'] = [label for label in parallel_labels if label != item['notation']]
         item['up'] = []
         while len(category_number)>1:
             category_number = category_number[:-1]
