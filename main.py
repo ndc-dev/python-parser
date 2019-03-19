@@ -173,7 +173,6 @@ def get_ndc_items(ndc_name):
                 notation = [item['notation']]
                 if 'memberRange' in item:
                     notation = item['memberRange']
-                    print(notation)
                 items.append({
                     'type': type_en,
                     'type@ja': type_ja[type_en],
@@ -210,13 +209,11 @@ def get_ndc_items(ndc_name):
                 else:
                     if is_range:
                         rang_notations.append(notation)
-            print(rang_notations)
             item['notation'] = rang_notations        
     return items
 
 
 def get_category_number(notation):
-    print(notation)
     return notation.split(' ')[0].split('.')[0].split('/')[0] # 071/07 対策
 
 def get_parallel_labels(items):
@@ -234,26 +231,27 @@ def get_parallel_labels(items):
 def get_items(ndc):
     items = get_ndc_items(ndc)
     parallel_labls = get_parallel_labels(items)
-    items_dict = {}
-    for item in items:
-        if len(item['notation']) == 1:
-            category_number = get_category_number(item['notation'])
-            if len(category_number)<=2:
-                items_dict[category_number] = {
-                    'notation': item['notation'],
-                    'label@ja': item['label@ja'] if 'label@ja' in item else ''
-                }
-    for item in items:
-        category_number = get_category_number(item['notation'])
-        item['paralell'] = []
-        item['up'] = []
-        if category_number in parallel_labls:
-            parallel_labels = parallel_labls[category_number]
-            item['paralell'] = [label for label in parallel_labels if label != item['notation']]
-        item['up'] = []
-        while len(category_number)>1:
-            category_number = category_number[:-1]
-            item['up'].append(items_dict[category_number])
+    # items_dict = {}
+    # for item in items:
+    #     if len(item['notation']) == 1:
+    #         category_number = get_category_number(item['notation'][0])
+    #         if len(category_number)<=2:
+    #             items_dict[category_number] = {
+    #                 'notation': item['notation'],
+    #                 'label@ja': item['label@ja'] if 'label@ja' in item else ''
+    #             }
+    # for item in items:
+    #     if len(item['notation']) == 1:
+    #         category_number = get_category_number(item['notation'][0])
+    #         item['paralell'] = []
+    #         item['up'] = []
+    #         if category_number in parallel_labls:
+    #             parallel_labels = parallel_labls[category_number]
+    #             item['paralell'] = [label for label in parallel_labels if label != item['notation']]
+    #         item['up'] = []
+    #         while len(category_number)>1:
+    #             category_number = category_number[:-1]
+    #             item['up'].append(items_dict[category_number])
     return items
 
 ndc8_items = get_items('ndc8')
