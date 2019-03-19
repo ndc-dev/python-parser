@@ -18,6 +18,7 @@ from collections import namedtuple
 from itertools import takewhile
 
 def get_ndc_items(ndc_name):
+    
     items = []
     with codecs.open('zips/' + ndc_name + '.ttl', 'r', 'utf-8') as file:
         section_count = 0
@@ -33,13 +34,19 @@ def get_ndc_items(ndc_name):
 
                 # indexedTermだけbufferを分離
                 buff = []
+                isStructuredLabel = False
+                sl_buff = []
                 isIndexedTerm = False
                 it_buff = []
                 isMemberRange = False
                 mr_buff = []
                 for b in tmp_buff[1:]:
                     b = b.strip()
-                    if b=='ndcv:indexedTerm [':
+                    if b=='ndcv:structuredLabel [':
+                        isStructuredLabel = True
+                    elif isStructuredLabel and b=='] ;':
+                        isStructuredLabel = False
+                    elif b=='ndcv:indexedTerm [':
                         isIndexedTerm = True
                     elif isIndexedTerm and b=='] ;':
                         isIndexedTerm = False
@@ -74,38 +81,51 @@ def get_ndc_items(ndc_name):
                         props = m.groups()
                         key = props[0]
                         value = props[1]
-                        if key=='label' or key=='note' or key=='notation':
-                            lm = re.search(r'"([^"]+)"', value)
+                        if key=='label':
+                            lm = re.search(r'"?（?([^"（）]+)）??"', value)
                             if lm:
                                 value = lm.groups()[0].split('．')
                         if key=='prefLabel':
-                            lm = re.search(r'"([^"]+)"@ja', value)
+                            lm = re.search(r'"（?([^"（）]+)）?"@(en|ja)', value)
                             if lm:
-                                item['prefLabel@ja'] = lm.groups()[0].split('．')
-                            lm = re.search(r'"([^"]+)"@en', value)
-                            if lm:
-                                item['prefLabel@ja'] = lm.groups()[0].split('．')
+                                if lm.groups()[1]=='ja':
+                                    item['prefLabel@ja'] = lm.groups()[0].split('．')
+                                if lm.groups()[1]=='en':
+                                    item['prefLabel@en'] = lm.groups()[0].split('．')
                             continue
+                        if key=='note':
+                            lm = re.search(r'"?([^"]+)?"', value)
+                            if lm:
+                                value = lm.groups()[0]
+                        if key=='notation':
+                            lm = re.search(r'"?([^"]+)?"', value)
+                            if lm:
+                                value = lm.groups()[0].split('．')
                         if key=='relatedMatch' or key=='seeAlso':
                             value = [x.strip() for x in value.split(',')]
                         item[key] = value
 
+                def getData(buff):
+                    items = []
+                    temp_items = []
+                    for n in buff:
+                        m = re.match(r'[^:]+:([^\s]+) "([^;]+)" ?;?', n)
+                        if m:
+                            temp_items.append(m.groups())
+                    
+                    item = []
+                    for temp_item in temp_items:
+                        if temp_item[0]=='literalForm':
+                            item.append(temp_item[1]) 
+                        elif temp_item[0]=='transcription':
+                            item.append(temp_item[1])
+                            items.append(item)
+                            item = []
+                    return items
+                # structuredLabelの処理
+                item['structuredLabel'] = getData(sl_buff)
                 # indexedTermの処理
-                item['indexedTerm'] = []
-                temp_items = []
-                for n in it_buff:
-                    m = re.match(r'[^:]+:([^\s]+) "([^;]+)" ?;?', n)
-                    if m:
-                        temp_items.append(m.groups())
-                
-                it_item = []
-                for temp_item in temp_items:
-                    if temp_item[0]=='literalForm':
-                        it_item.append(temp_item[1]) 
-                    elif temp_item[0]=='transcription':
-                        it_item.append(temp_item[1])
-                        item['indexedTerm'].append(it_item)
-                        it_item = []
+                item['indexedTerm'] = getData(it_buff)
 
                 # memberRangeの処理
                 item['memberRange'] = {}
@@ -116,7 +136,84 @@ def get_ndc_items(ndc_name):
                         item['memberRange'][m.groups()[0]] = m.groups()[1]
                     
                 # print(item)
-                items.append(item)
+                # type  [String]
+                # 　分類項目の種類（英語） Top,Main,Division,Section,Concept,Variant,Collection
+                # type@ja   [String]
+                # 　分類項目の種類（日本語） 最上位,類目（第1次区分）,綱目（第2次区分）,要目（第3次区分）,細目,二者択一項目,中間見出し・範囲項目
+                # scheme [String]
+                # 　NDCの版次   8,9
+                # notation [Array of String]
+                # 　分類記号 ・・・範囲がある場合は複数になる場合がある
+                # label@ja [ Array of String ]
+                # prefLabel@en [String]
+                # prefLabel@ja [String]
+                # indexedTerm@ja [Array of Array] 索引語 [(索引,索引の読み),(索引,索引の読み)]
+                # note@ja [Array of String] 
+                # variantOf [String or null]
+                # memberRange [Array of String or null] 中間見出し・範囲項目
+                # seeAlso [Array of String]　分類記号のリスト
+                # related [Array of String]　分類記号のリスト
+                # broader [Array of String]　分類記号のリスト
+                # narrower[Array of String]　分類記号のリスト
+
+
+                # ndc: "071_077",
+                # skos: "Collection",
+                # label: [
+                # "ジャーナリズム",
+                # "新聞--新聞紙"
+                # ],
+                # prefLabel@ja: [
+                # "新聞紙"
+                # ],
+                # notation: [
+                # "071/077"
+                # ],
+                # isVersionOf: "ndc:071_077",
+                # inScheme: "ndc9:",
+                # note: [
+                # "発行地による地理区分で細分できる"
+                # ],
+                # isPartOf: "ndc9:07",
+                # indexedTerm: [ ],
+                # memberRange: {
+                # minInclusive: "071",
+                # maxExclusive: "078"
+                # },
+                # paralell: [
+                # "071"
+                # ],
+
+                print(item)
+                type_en = item['ndcv'] if 'ndcv' in item else item['skos']
+                if type_en=='MainClass':
+                    type_en = 'Main'
+                type_ja = {
+                    'Main': '類目（第1次区分）',
+                    'Division': '綱目（第2次区分）',
+                    'Section': '要目（第3次区分）',
+                    'Concept': '細目',
+                    'Variant': '二者択一項目',
+                    'Collection': '中間見出し・範囲項目',
+                }
+                items.append({
+                    'type': type_en,
+                    'type@ja': type_ja[type_en],
+                    'ndc': item['ndc'],
+                    'scheme': item['inScheme'],
+                    'notation': item['notation'],
+                    'label@ja': item['label'] if 'label' in item else [],
+                    'prefLabel@ja': item['prefLabel@ja'] if 'prefLabel@ja' in item else [],
+                    'prefLabel@en': item['prefLabel@en'] if 'prefLabel@en' in item else [],
+                    'indexedTerm@ja': item['indexedTerm'],
+                    'note@ja': item['note'] if 'note' in item else '',
+                    'variantOf': item['variantOf'] if 'variantOf' in item else None,
+                    'memberRange': item['memberRange'] if 'memberRange' in item else None,
+                    'seeAlso': item['seeAlso'] if 'seeAlso' in item else [],
+                    'related': item['relatedMatch'] if 'relatedMatch' in item else [],
+                    'broader': item['broader'] if 'broader' in item else '',
+                    'narrower': item['narrower'] if 'narrower' in item else '',
+                })
                 # if section_count > 2:
                 #     break
     return items
@@ -135,6 +232,7 @@ def get_parallel_labels(items):
             parallel_labels[category_number].append(item['ndc'])
     return parallel_labels
 
+
 def get_items(ndc):
     items = get_ndc_items(ndc)
     parallel_labls = get_parallel_labels(items)
@@ -144,19 +242,19 @@ def get_items(ndc):
         if len(category_number)<=2:
             items_dict[category_number] = {
                 'ndc': item['ndc'],
-                'label': item['label'][0] if 'label' in item else ''
+                'label@ja': item['label@ja'] if 'label@ja' in item else ''
             }
     for item in items:
         category_number = get_category_number(item['ndc'])
-        item['paralell_labels'] = []
-        item['upper_level_labels'] = []
+        item['paralell'] = []
+        item['up'] = []
         if category_number in parallel_labls:
             parallel_labels = parallel_labls[category_number]
-            item['paralell_labels'] = [label for label in parallel_labels if label != item['ndc']]
-        item['upper_level_labels'] = []
+            item['paralell'] = [label for label in parallel_labels if label != item['ndc']]
+        item['up'] = []
         while len(category_number)>1:
             category_number = category_number[:-1]
-            item['upper_level_labels'].append(items_dict[category_number])
+            item['up'].append(items_dict[category_number])
     return items
 
 ndc8_items = get_items('ndc8')
