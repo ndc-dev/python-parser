@@ -35,20 +35,25 @@ def get_ndc_items(ndc_name):
                 buff = []
                 isIndexedTerm = False
                 it_buff = []
+                isMemberRange = False
+                mr_buff = []
                 for b in tmp_buff[1:]:
                     b = b.strip()
                     if b=='ndcv:indexedTerm [':
                         isIndexedTerm = True
-                        it_buff.append(b)
-                    elif b=='] ;':
+                    elif isIndexedTerm and b=='] ;':
                         isIndexedTerm = False
+                    elif b=='ndcv:memberRange [':
+                        isMemberRange = True
+                    elif isMemberRange and b==']':
+                        isMemberRange = False
+                    elif isIndexedTerm:
                         it_buff.append(b)
+                    elif isMemberRange:
+                        mr_buff.append(b)
                     else:
-                        if isIndexedTerm:
-                            it_buff.append(b)
-                        else:
-                            buff.append(b)
-                
+                        buff.append(b)
+
                 item = {}
 
                 # 1行目の処理 ex) ndc9:000 a ndcv:Section, skos:Concept ;
@@ -76,27 +81,39 @@ def get_ndc_items(ndc_name):
                         if key=='prefLabel':
                             lm = re.search(r'"([^"]+)"@ja', value)
                             if lm:
-                                item['prefLabel@ja'] = lm.groups()[0]
+                                item['prefLabel@ja'] = lm.groups()[0].split('．')
                             lm = re.search(r'"([^"]+)"@en', value)
                             if lm:
-                                item['prefLabel@ja'] = lm.groups()[0]
+                                item['prefLabel@ja'] = lm.groups()[0].split('．')
                             continue
                         if key=='relatedMatch' or key=='seeAlso':
                             value = [x.strip() for x in value.split(',')]
                         item[key] = value
 
                 # indexedTermの処理
+                item['indexedTerm'] = []
+                temp_items = []
                 for n in it_buff:
-                    m = re.match(r'[^:]+:([^\s]+) ([^;]+) ;', n)
+                    m = re.match(r'[^:]+:([^\s]+) "([^;]+)" ?;?', n)
                     if m:
-                        ndvc_items = []
-                        for ndvc_item in m.groups():
-                            lm = re.search(r'"([^"]+)"', ndvc_item)
-                            if lm:
-                                ndvc_items.append(lm.groups()[0])
-                            else:
-                                ndvc_items.append(ndvc_item)
-                        item['indexedTerm'] = ndvc_items
+                        temp_items.append(m.groups())
+                
+                it_item = []
+                for temp_item in temp_items:
+                    if temp_item[0]=='literalForm':
+                        it_item.append(temp_item[1]) 
+                    elif temp_item[0]=='transcription':
+                        it_item.append(temp_item[1])
+                        item['indexedTerm'].append(it_item)
+                        it_item = []
+
+                # memberRangeの処理
+                item['memberRange'] = {}
+                for n in mr_buff:
+                    # xsd:minInclusive 930.25 ;
+                    m = re.match(r'[^:]+:([^\s]+) ([^\s;]+) ?;?', n)
+                    if m:
+                        item['memberRange'][m.groups()[0]] = m.groups()[1]
                     
                 # print(item)
                 items.append(item)
@@ -127,7 +144,7 @@ def get_items(ndc):
         if len(category_number)<=2:
             items_dict[category_number] = {
                 'ndc': item['ndc'],
-                'label': item['label'] if 'label' in item else ''
+                'label': item['label'][0] if 'label' in item else ''
             }
     for item in items:
         category_number = get_category_number(item['ndc'])
@@ -157,7 +174,7 @@ def index(req, resp):
 @api.route("/ndc8")
 def index(req, resp):
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
-    resp.content = json.dumps(ndc8_items[:100], ensure_ascii=False)
+    resp.content = json.dumps(ndc8_items[:1000], ensure_ascii=False)
 
 @api.route("/ndc8_labels")
 def index(req, resp):
@@ -168,7 +185,7 @@ def index(req, resp):
 @api.route("/ndc9")
 def index(req, resp):
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
-    resp.content = json.dumps(ndc9_items[:100], ensure_ascii=False)
+    resp.content = json.dumps(ndc9_items[:1000], ensure_ascii=False)
 
 @api.route("/ndc9_labels")
 def index(req, resp):
