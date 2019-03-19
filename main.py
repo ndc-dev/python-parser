@@ -216,21 +216,20 @@ def get_ndc_items(ndc_name):
 def get_category_number(notation):
     return notation.split(' ')[0].split('.')[0].split('/')[0] # 071/07 対策
 
-def get_parallel_labels(items):
-    parallel_labels = {}
-    for item in items:
-        if len(item['notation']) == 1:
-            category_number = get_category_number(item['notation'][0])
-            if category_number not in parallel_labels:
-                parallel_labels[category_number] = [item['notation'][0]]
-            else:
-                parallel_labels[category_number].append(item['notation'][0])
-    return parallel_labels
+# def get_parallel_labels(items):
+#     parallel_labels = {}
+#     for item in items:
+#         if len(item['notation']) == 1:
+#             category_number = get_category_number(item['notation'][0])
+#             if category_number not in parallel_labels:
+#                 parallel_labels[category_number] = [item['notation'][0]]
+#             else:
+#                 parallel_labels[category_number].append(item['notation'][0])
+#     return parallel_labels
 
 
-def get_items(ndc):
-    items = get_ndc_items(ndc)
-    parallel_labls = get_parallel_labels(items)
+# def get_items(ndc):
+    # parallel_labls = get_parallel_labels(items)
     # items_dict = {}
     # for item in items:
     #     if len(item['notation']) == 1:
@@ -252,10 +251,10 @@ def get_items(ndc):
     #         while len(category_number)>1:
     #             category_number = category_number[:-1]
     #             item['up'].append(items_dict[category_number])
-    return items
+    # return items
 
-ndc8_items = get_items('ndc8')
-ndc9_items = get_items('ndc9')
+ndc8_items = get_ndc_items('ndc8')
+ndc9_items = get_ndc_items('ndc9')
 
 # f = codecs.open('zips/sample.ttl', 'r', 'utf-8')
 # ndc = f.read()
