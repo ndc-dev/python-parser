@@ -187,7 +187,7 @@ def get_ndc_items(ndc_name):
                     'note@ja': item['note'] if 'note' in item else '',
                     'variantOf': item['variantOf'] if 'variantOf' in item else None,
                     'seeAlso': item['seeAlso'] if 'seeAlso' in item else [],
-                    'related': item['relatedMatch'] if 'relatedMatch' in item else [],
+                    'related': item['related'] if 'related' in item else [],
                     'broader': item['broader'] if 'broader' in item else '',
                     'narrower': item['narrower'] if 'narrower' in item else '',
                 })
