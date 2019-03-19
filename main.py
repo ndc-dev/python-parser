@@ -134,6 +134,8 @@ def get_ndc_items(ndc_name):
                     # xsd:minInclusive 930.25 ;
                     m = re.match(r'[^:]+:([^\s]+) ([^\s;]+) ?;?', n)
                     if m:
+                        print(n)
+                        print(m.groups())
                         item['memberRange'][m.groups()[0]] = m.groups()[1]
                     
                 # print(item)
@@ -195,21 +197,22 @@ def get_ndc_items(ndc_name):
     # 中間見出し・範囲項目のnotationを復元する
     for item in items:
         # 中間見出し・範囲項目
-        if len(item['notation']) > 1:
-            rang_notations = []
+        if item['type']=='Collection':
+            print(item)
+            range_notations = []
             is_range = False
             for notation in notations:
                 if notation==item['notation']['minInclusive']:
                     is_range = True
-                    rang_notations.append(notation)
+                    range_notations.append(notation)
                 elif notation==item['notation']['maxExclusive']:
                     is_range = False
-                    rang_notations.append(notation)
+                    range_notations.append(notation)
                     break
                 else:
                     if is_range:
-                        rang_notations.append(notation)
-            item['notation'] = rang_notations        
+                        range_notations.append(notation)
+            item['notation'] = range_notations        
     return items
 
 
