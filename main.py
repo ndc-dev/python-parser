@@ -87,10 +87,10 @@ def get_ndc_items(ndc_name):
                             if lm:
                                 value = lm.groups()[0].split("．")
                         if key=="prefLabel":
-                            lm = re.search(r"\"（?([^\"（）]+)）?\"@ja", value)
+                            lm = re.search(r"\"([^\"]+)\"@ja", value)
                             if lm:
                                 item["prefLabel@ja"] = lm.groups()[0].split("．")
-                            lm = re.search(r"\"（?([^\"（）]+)）?\"@en", value)
+                            lm = re.search(r"\"([^\"]+)\"@en", value)
                             if lm:
                                 item["prefLabel@en"] = lm.groups()[0].split(".")
                             continue
