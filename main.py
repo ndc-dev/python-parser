@@ -102,8 +102,8 @@ def get_ndc_items(ndc_name):
                             lm = re.search(r"\"?([^\"]+)?\"", value)
                             if lm:
                                 value = lm.groups()[0]
-                        if key=="relatedMatch" or key=="seeAlso":
-                            value = [x.strip() for x in value.split(",")]
+                        if key=="seeAlso" or key=="related" or key=="broader" or key=="narrower":
+                            value = [x.strip().split(':')[1] for x in value.split(",")]
                         item[key] = value
 
                 def get_ndcv_list(buff):
@@ -168,9 +168,12 @@ def get_ndc_items(ndc_name):
                     "Variant": "二者択一項目",
                     "Collection": "中間見出し・範囲項目",
                 }
-                notations.append(item["notation"])
-                notation = [item["notation"]]
-                if "memberRange" in item:
+                if type_en!="Collection":
+                    notations.append(item["notation"])
+                notation = None
+                if "notation" in item:
+                    notation = [item["notation"]]
+                if len(item["memberRange"]) > 0:
                     notation = item["memberRange"]
                 items.append({
                     "type": type_en,
@@ -185,30 +188,49 @@ def get_ndc_items(ndc_name):
                     "variantOf": item["variantOf"] if "variantOf" in item else None,
                     "seeAlso": item["seeAlso"] if "seeAlso" in item else [],
                     "related": item["related"] if "related" in item else [],
-                    "broader": item["broader"] if "broader" in item else "",
-                    "narrower": item["narrower"] if "narrower" in item else "",
+                    "broader": item["broader"] if "broader" in item else [],
+                    "narrower": item["narrower"] if "narrower" in item else [],
                 })
                 # if section_count > 2:
                 #     break
 
+    notations.sort()
+    # print(notations)
+    def get_float(notation):
+        return float(notation.split('/')[0])
+    def get_range_notations(min, max):
+        range_notations = []
+        is_range = False
+        # print(item["notation"])
+        for notation in notations:
+            if notation==min:
+                # print(notation)
+                is_range = True
+                range_notations.append(notation)
+            elif get_float(notation) > get_float(max):
+                # print(notation)
+                is_range = False
+            else:
+                if is_range:
+                    # print(notation)
+                    range_notations.append(notation)
+        return range_notations
+
     # 中間見出し・範囲項目のnotationを復元する
+    # seeAlsoのnotationを復元する
     for item in items:
         # 中間見出し・範囲項目
         if item["type"]=="Collection":
-            range_notations = []
-            is_range = False
-            for notation in notations:
-                if notation==item["notation"]["minInclusive"]:
-                    is_range = True
-                    range_notations.append(notation)
-                elif notation==item["notation"]["maxExclusive"]:
-                    is_range = False
-                    range_notations.append(notation)
-                    break
+            item["notation"] = get_range_notations(item["notation"]["minInclusive"], item["notation"]["maxExclusive"])
+        if 'seeAlso' in item and len(item['seeAlso'])>0:
+            for see_also in item['seeAlso']:
+                see_alsos = []
+                if re.search(r'_', see_also):
+                    range_see_alsos = get_range_notations(see_also.split('_')[0], see_also.split('_')[1])
+                    see_alsos.extend(range_see_alsos)
                 else:
-                    if is_range:
-                        range_notations.append(notation)
-            item["notation"] = range_notations        
+                    see_alsos.append(see_also)
+            item['seeAlso'] = see_alsos
     return items
 
 
@@ -269,10 +291,14 @@ def index(req, resp):
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
     resp.content = json.dumps(ndc8_items[:1000], ensure_ascii=False)
 
-@api.route("/ndc8_labels")
+@api.route("/ndc8_notations")
 def index(req, resp):
+    notations = []
+    for item in ndc8_items:
+        if 'notation' in item and len(item['notation'])==1:
+            notations.append(item['notation'][0])
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
-    resp.content = json.dumps(ndc8_parallel_labls, ensure_ascii=False)
+    resp.content = json.dumps(notations, ensure_ascii=False)
 
 
 @api.route("/ndc9")
@@ -280,10 +306,14 @@ def index(req, resp):
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
     resp.content = json.dumps(ndc9_items[:1000], ensure_ascii=False)
 
-@api.route("/ndc9_labels")
+@api.route("/ndc9_notations")
 def index(req, resp):
+    notations = []
+    for item in ndc9_items:
+        if 'notation' in item and len(item['notation'])==1:
+            notations.append(item['notation'][0])
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
-    resp.content = json.dumps(ndc9_parallel_labls, ensure_ascii=False)
+    resp.content = json.dumps(notations, ensure_ascii=False)
 
 
 if __name__ == "__main__":
