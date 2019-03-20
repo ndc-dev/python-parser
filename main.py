@@ -1,20 +1,22 @@
+import re
 import json
 import copy
 import codecs
 import zipfile
 import responder
-
 api = responder.API()
-
-# with zipfile.ZipFile("zips/ndc9.zip", "r") as ndczip:
-#     # print(ndczip.namelist())
-#     ndc = ndczip.read("ndc9.ttl")
-
-import re
-from collections import namedtuple
 from itertools import takewhile
 
 def get_ndc_items(ndc_name, file):
+    type_dict = {
+        "Main": "類目（第1次区分）",
+        "Division": "綱目（第2次区分）",
+        "Section": "要目（第3次区分）",
+        "Concept": "細目",
+        "Variant": "二者択一項目",
+        "Collection": "中間見出し・範囲項目",
+    }
+
     top_item = {
         "type": "Top",
         "type@ja": "最上位",
@@ -45,7 +47,6 @@ def get_ndc_items(ndc_name, file):
             # print("".join(tmp_buff))
             # print("---------------------------------------------")
 
-            # indexedTermだけbufferを分離
             buff = []
             isIndexedTerm = False
             it_buff = []
@@ -73,7 +74,7 @@ def get_ndc_items(ndc_name, file):
 
             item = {}
 
-            # 1行目の処理 ex) ndc9:000 a ndcv:Section, skos:Concept ;
+            # 1行目の処理
             nm = re.search(r"ndcv:([^\s]+)", line)
             if nm:
                 item["ndcv"] = nm.groups()[0].replace(",", "").strip()
@@ -88,9 +89,8 @@ def get_ndc_items(ndc_name, file):
             for b in buff:
                 m = re.match(r"[^:]+:([^\s]+) ([^;]+) ;", b)
                 if m:
-                    props = m.groups()
-                    key = props[0]
-                    value = props[1]
+                    key = m.groups()[0]
+                    value = m.groups()[1]
                     if key=="label":
                         lm = re.search(r"（?([^（）]+)）?", value)
                         if lm:
@@ -140,14 +140,7 @@ def get_ndc_items(ndc_name, file):
             if type_en!="Collection":
                 notations.append(item["notation"])
 
-            type_ja = {
-                "Main": "類目（第1次区分）",
-                "Division": "綱目（第2次区分）",
-                "Section": "要目（第3次区分）",
-                "Concept": "細目",
-                "Variant": "二者択一項目",
-                "Collection": "中間見出し・範囲項目",
-            }[type_en]
+            type_ja = type_dict[type_en]
 
             notation = None
             if "notation" in item:
@@ -188,8 +181,7 @@ def get_ndc_items(ndc_name, file):
                     range_notations.append(notation)
         return range_notations
 
-    # 中間見出し・範囲項目のnotationを復元する
-    # seeAlsoのnotationを復元する
+    # 中間見出し・範囲項目、seeAlsoのnotationを復元する
     for item in items:
         # 中間見出し・範囲項目
         if item["type"]=="Collection":
@@ -205,6 +197,11 @@ def get_ndc_items(ndc_name, file):
             item['seeAlso'] = see_alsos
     return items
 
+
+
+# with zipfile.ZipFile("zips/ndc9.zip", "r") as ndczip:
+#     # print(ndczip.namelist())
+#     ndc = ndczip.read("ndc9.ttl")
 
 with codecs.open("zips/ndc8.ttl", "r", "utf-8") as file:
     ndc8_items = get_ndc_items("ndc8", file)
