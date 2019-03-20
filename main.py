@@ -87,12 +87,12 @@ def get_ndc_items(ndc_name):
                             if lm:
                                 value = lm.groups()[0].split("．")
                         if key=="prefLabel":
-                            lm = re.search(r"\"（?([^\"（）]+)）?\"@(en|ja)", value)
+                            lm = re.search(r"\"（?([^\"（）]+)）?\"@ja", value)
                             if lm:
-                                if lm.groups()[1]=="ja":
-                                    item["prefLabel@ja"] = lm.groups()[0].split("．")
-                                if lm.groups()[1]=="en":
-                                    item["prefLabel@en"] = lm.groups()[0].split("．")
+                                item["prefLabel@ja"] = lm.groups()[0].split("．")
+                            lm = re.search(r"\"（?([^\"（）]+)）?\"@en", value)
+                            if lm:
+                                item["prefLabel@en"] = lm.groups()[0].split(".")
                             continue
                         if key=="note":
                             lm = re.search(r"\"?([^\"]+)?\"", value)
@@ -195,7 +195,6 @@ def get_ndc_items(ndc_name):
     for item in items:
         # 中間見出し・範囲項目
         if item["type"]=="Collection":
-            print(item)
             range_notations = []
             is_range = False
             for notation in notations:
