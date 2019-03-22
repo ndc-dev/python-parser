@@ -7,7 +7,7 @@ import responder
 api = responder.API()
 from itertools import takewhile
 
-def get_ndc_items(ndc_name, file):
+def parse_ndc_ttl(ndc_name, file):
     type_dict = {
         "Main": "類目（第1次区分）",
         "Division": "綱目（第2次区分）",
@@ -204,9 +204,9 @@ def get_ndc_items(ndc_name, file):
 #     ndc = ndczip.read("ndc9.ttl")
 
 with codecs.open("zips/ndc8.ttl", "r", "utf-8") as file:
-    ndc8_items = get_ndc_items("ndc8", file)
+    ndc8_items = parse_ndc_ttl("ndc8", file)
 with codecs.open("zips/ndc9.ttl", "r", "utf-8") as file:
-    ndc9_items = get_ndc_items("ndc9", file)
+    ndc9_items = parse_ndc_ttl("ndc9", file)
 
 @api.route("/")
 def index(req, resp):
