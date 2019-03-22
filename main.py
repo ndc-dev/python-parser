@@ -244,16 +244,14 @@ def add_relate_ndc(items):
                 if ndc in ndc_dict:
                     item["up"].append(ndc_dict[ndc])
                 if ndc in down_dict:
-                    if len(item["notation"])==1 and len(item["notation"][0].replace(".", "")) == (len(ndc.replace(".", "")) + 1):
+                    if len(item["notation"][0].replace(".", "")) == (len(ndc.replace(".", "")) + 1):
                         down_dict[ndc].append({
                             "notation": item["notation"],
                             "label@ja": item["label@ja"] if "label@ja" in item else ""
                         })
     for item in items:
         if len(item["notation"]) == 1:
-            if ndc in ndc_dict:
-                item["up"].append(ndc_dict[ndc])
-                item['down'] = down_dict[item["notation"][0]]
+            item['down'] = down_dict[item["notation"][0]]
     # for item in items:
     #     if len(item["notation"]) == 1:
     #         if len(item["up"]) >0:
