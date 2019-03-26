@@ -5,4 +5,4 @@ WORKDIR /app/
 RUN pip install pipenv
 RUN pipenv install
 CMD ["pipenv", "run", "python", "main.py"]
-EXPOSE 80
+EXPOSE 5042

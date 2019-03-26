@@ -312,4 +312,4 @@ def index(req, resp):
 
 
 if __name__ == "__main__":
-    api.run(port=80)
+    api.run(address='0.0.0.0')
