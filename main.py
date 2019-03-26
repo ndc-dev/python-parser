@@ -312,4 +312,4 @@ def index(req, resp):
 
 
 if __name__ == "__main__":
-    api.run()
+    api.run(port=80)
