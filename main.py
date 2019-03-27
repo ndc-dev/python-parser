@@ -233,10 +233,6 @@ def add_relate_ndc(items):
     for item in items:
         if len(item["notation"]) == 1:
             item['down'] = down_dict[item["notation"][0]]
-    # for item in items:
-    #     if len(item["notation"]) == 1:
-    #         if len(item["up"]) >0 and item["up"][0]["notation"][0] in down_dict:
-    #             item["contain"] = down_dict[item["up"][0]["notation"][0]]
     return items
 
 
