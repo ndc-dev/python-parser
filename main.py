@@ -104,14 +104,14 @@ def parse_ndc_ttl(ndc_name, file):
                         lm = re.search(r"(.*?)@ja", value)
                         if lm:
                             item["prefLabel@ja"] = rm_quote(lm.groups()[0]).split("．")
-                        lm = re.search(r"(.*?)@en", value)
+                        lm = re.search(r", (.*?)@en", value)
                         if lm:
                             item["prefLabel@en"] = rm_quote(lm.groups()[0]).split(".")
                         continue
                     if key=="note" or key=="notation":
                         value = rm_quote(value)
                     if key=="seeAlso" or key=="related" or key=="broader" or key=="narrower":
-                        value = b.split(key)[1]
+                        value = b.split(key)[1].replace(" ;", "")
                         value = [x.strip().split(':')[1] for x in value.split(",")]
                     item[key] = value
 
@@ -151,6 +151,8 @@ def parse_ndc_ttl(ndc_name, file):
             notation = None
             if "notation" in item:
                 notation = [item["notation"]]
+                if item["notation"] in top_item["narrower"]:
+                    item["broader"] = [""]
             if len(item["memberRange"]) > 0:
                 notation = item["memberRange"]
             ndc_dict[item["notation"]] = {
