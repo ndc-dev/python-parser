@@ -286,35 +286,11 @@ def index(req, resp):
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
     resp.content = json.dumps(ndc8_items[:1000], ensure_ascii=False)
 
-@api.route("/ndc8_notations")
-def index(req, resp):
-    notations = []
-    for item in ndc8_items:
-        if 'notation' in item and len(item['notation'])==1:
-            notations.append(item['notation'][0])
-    resp.headers = {"Content-Type": "application/json; charset=utf-8"}
-    resp.content = json.dumps(notations, ensure_ascii=False)
-
 
 @api.route("/ndc9")
 def index(req, resp):
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
     resp.content = json.dumps(ndc9_items[:1000], ensure_ascii=False)
-
-@api.route("/ndc9_notations")
-def index(req, resp):
-    notations = []
-    for item in ndc9_items:
-        if 'notation' in item and len(item['notation'])==1:
-            notations.append(item['notation'][0])
-    resp.headers = {"Content-Type": "application/json; charset=utf-8"}
-    resp.content = json.dumps(notations, ensure_ascii=False)
-
-@api.route("/down_dict")
-def index(req, resp):
-    resp.headers = {"Content-Type": "application/json; charset=utf-8"}
-    resp.content = json.dumps(down_dict, ensure_ascii=False)
-
 
 if __name__ == "__main__":
     api.run()
