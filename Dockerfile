@@ -4,5 +4,6 @@ COPY . /app/
 WORKDIR /app/
 RUN pip install pipenv
 RUN pipenv install
+ENV PORT=80
 CMD ["pipenv", "run", "python", "main.py"]
-EXPOSE 5042
+EXPOSE 80
