@@ -2,6 +2,7 @@ import re
 import json
 import copy
 import codecs
+import io
 import zipfile
 import responder
 api = responder.API()
@@ -261,16 +262,20 @@ def add_relate_ndc(items):
     return items
 
 
-# with zipfile.ZipFile("zips/ndc9.zip", "r") as ndczip:
-#     # print(ndczip.namelist())
-#     ndc = ndczip.read("ndc9.ttl")
 
-with codecs.open("zips/ndc8.ttl", "r", "utf-8") as file:
-    ndc8_items = parse_ndc_ttl("ndc8", file)
-    ndc8_items = add_relate_ndc(ndc8_items)
-with codecs.open("zips/ndc9.ttl", "r", "utf-8") as file:
-    ndc9_items = parse_ndc_ttl("ndc9", file)
-    ndc9_items = add_relate_ndc(ndc9_items)
+with zipfile.ZipFile("zips/ndc8.zip") as zfile:
+    with zfile.open("ndc8.ttl") as readfile:
+        ndc8_items = parse_ndc_ttl("ndc8", io.TextIOWrapper(readfile, "utf-8"))
+        ndc8_items = add_relate_ndc(ndc8_items)
+
+with zipfile.ZipFile("zips/ndc9.zip") as zfile:
+    with zfile.open("ndc9.ttl") as readfile:
+        ndc9_items = parse_ndc_ttl("ndc9", io.TextIOWrapper(readfile, "utf-8"))
+        ndc9_items = add_relate_ndc(ndc9_items)
+
+# with codecs.open("zips/ndc9.ttl", "r", "utf-8") as file:
+#     ndc9_items = parse_ndc_ttl("ndc9", file)
+#     ndc9_items = add_relate_ndc(ndc9_items)
 
 @api.route("/")
 def index(req, resp):
