@@ -1,6 +1,6 @@
-# ndc.dev
+# Python Parser for NDC
 
-##
+## Development
 
 pipenv run python main.py
 
