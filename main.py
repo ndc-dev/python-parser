@@ -43,8 +43,6 @@ def parse_ndc_ttl(ndc_name, file):
     for line in file:
         if line.startswith(ndc_name + ":"):
             section_count += 1
-            if section_count>10:
-                break
             if section_count==1: # 1つ目は不要データなので飛ばす
                 continue
             tmp_buff = [line]
