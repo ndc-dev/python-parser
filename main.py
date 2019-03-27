@@ -22,7 +22,7 @@ def parse_ndc_ttl(ndc_name, file):
         "type": "Top",
         "type@ja": "最上位",
         "scheme": ndc_name+":",
-        "notation": [],
+        "notation": "",
         "label@ja": [],
         "prefLabel@ja": [],
         "prefLabel@en": [],
@@ -32,16 +32,20 @@ def parse_ndc_ttl(ndc_name, file):
         "seeAlso": [],
         "related": [],
         "broader": [],
-        "narrower": [],
+        "narrower": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
     }
-    items = [top_item]
+    ndc_dict = {
+        "": top_item
+    }
 
     section_count = 0
     notations = []
     for line in file:
         if line.startswith(ndc_name + ":"):
             section_count += 1
-            if section_count==1: # トップは不要データなので飛ばす
+            if section_count>10:
+                break
+            if section_count==1: # 1つ目は不要データなので飛ばす
                 continue
             tmp_buff = [line]
             tmp_buff.extend(takewhile(lambda x: x.strip()!=".", file))
@@ -88,7 +92,7 @@ def parse_ndc_ttl(ndc_name, file):
 
             # 各行処理
             for b in buff:
-                m = re.match(r"[^:]+:([^\s]+) ([^;]+) ;", b)
+                m = re.match(r"[^:]+:([^\s]+) ([^;]+) ;?", b)
                 if m:
                     key = m.groups()[0]
                     value = m.groups()[1]
@@ -107,6 +111,7 @@ def parse_ndc_ttl(ndc_name, file):
                     if key=="note" or key=="notation":
                         value = rm_quote(value)
                     if key=="seeAlso" or key=="related" or key=="broader" or key=="narrower":
+                        value = b.split(key)[1]
                         value = [x.strip().split(':')[1] for x in value.split(",")]
                     item[key] = value
 
@@ -148,8 +153,7 @@ def parse_ndc_ttl(ndc_name, file):
                 notation = [item["notation"]]
             if len(item["memberRange"]) > 0:
                 notation = item["memberRange"]
-
-            items.append({
+            ndc_dict[item["notation"]] = {
                 "type": type_en,
                 "type@ja": type_ja,
                 "scheme": item["inScheme"],
@@ -164,7 +168,7 @@ def parse_ndc_ttl(ndc_name, file):
                 "related": item["related"] if "related" in item else [],
                 "broader": item["broader"] if "broader" in item else [],
                 "narrower": item["narrower"] if "narrower" in item else [],
-            })
+            }
 
     def get_range_notations(min, max):
         def get_float(notation):
@@ -183,7 +187,7 @@ def parse_ndc_ttl(ndc_name, file):
         return range_notations
 
     # 中間見出し・範囲項目、seeAlsoのnotationを復元する
-    for item in items:
+    for key, item in ndc_dict.items():
         # 中間見出し・範囲項目
         if item["type"]=="Collection":
             item["notation"] = get_range_notations(item["notation"]["minInclusive"], item["notation"]["maxExclusive"])
@@ -196,56 +200,17 @@ def parse_ndc_ttl(ndc_name, file):
                 else:
                     see_alsos.append(see_also)
             item['seeAlso'] = see_alsos
-    return items
-
-
-ndc_dict = {}
-down_dict = {}
-def add_relate_ndc(items):
-    # NDCでひける辞書を作る
-    for item in items:
-        if len(item["notation"]) == 1:
-            ndc_dict[item["notation"][0]] = {
-                "notation": item["notation"],
-                "label@ja": item["label@ja"] if "label@ja" in item else ""
-            }
-            down_dict[item["notation"][0]] = []
-    for item in items:
-        if len(item["notation"]) == 1:
-            item["up"] = []
-            item['down'] = []
-            ndc = item["notation"][0]
-            while len(ndc)>1:
-                ndc = ndc[:-1]
-                ndc = re.sub(r"\.$", "", ndc)
-                if ndc in ndc_dict:
-                    item["up"].append(ndc_dict[ndc])
-            item["up"].reverse()
-    for item in items:
-        if len(item["notation"]) == 1:
-            for i in item['up']:
-                # 1つ上のNDCに絞る
-                if len(i["notation"][0].replace(".", "")) == (len(item["notation"][0].replace(".", "")) - 1):
-                    down_dict[i["notation"][0]].append({
-                        "notation": item["notation"],
-                        "label@ja": item["label@ja"] if "label@ja" in item else ""
-                    })
-    for item in items:
-        if len(item["notation"]) == 1:
-            item['down'] = down_dict[item["notation"][0]]
-    return items
+    return ndc_dict
 
 
 
 with zipfile.ZipFile("zips/ndc8.zip") as zfile:
     with zfile.open("ndc8.ttl") as readfile:
         ndc8_items = parse_ndc_ttl("ndc8", io.TextIOWrapper(readfile, "utf-8"))
-        ndc8_items_updown = add_relate_ndc(ndc8_items)
 
 with zipfile.ZipFile("zips/ndc9.zip") as zfile:
     with zfile.open("ndc9.ttl") as readfile:
         ndc9_items = parse_ndc_ttl("ndc9", io.TextIOWrapper(readfile, "utf-8"))
-        ndc9_items_updown = add_relate_ndc(ndc9_items)
 
 # with codecs.open("zips/ndc9.ttl", "r", "utf-8") as file:
 #     ndc9_items = parse_ndc_ttl("ndc9", file)
@@ -257,22 +222,14 @@ def index(req, resp):
 
 @api.route("/ndc8")
 def index(req, resp):
-    updown = req.params.get('updown')
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
-    if relupdownate:
-        resp.content = json.dumps(ndc8_items_updown, ensure_ascii=False)
-    else:
-        resp.content = json.dumps(ndc8_items, ensure_ascii=False)
+    resp.content = json.dumps(ndc8_items, ensure_ascii=False)
 
 
 @api.route("/ndc9")
 def index(req, resp):
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
-    updown = req.params.get('updown')
-    if updown:
-        resp.content = json.dumps(ndc9_items_updown, ensure_ascii=False)
-    else:
-        resp.content = json.dumps(ndc9_items, ensure_ascii=False)
+    resp.content = json.dumps(ndc9_items, ensure_ascii=False)
 
 if __name__ == "__main__":
     api.run()
