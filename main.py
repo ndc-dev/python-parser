@@ -199,30 +199,6 @@ def parse_ndc_ttl(ndc_name, file):
     return items
 
 
-
-
-
-def get_parallel_labels(items):
-    parallel_labels = {}
-    for item in items:
-        if len(item["notation"]) == 1:
-            category_number = get_category_number(item["notation"][0])
-            if category_number not in parallel_labels:
-                parallel_labels[category_number] = [item["notation"][0]]
-            else:
-                parallel_labels[category_number].append(item["notation"][0])
-    return parallel_labels
-
-    # parallel_labls = get_parallel_labels(items)
-            # item["paralell"] = []
-            # if category_number in parallel_labls:
-            #     parallel_labels = parallel_labls[category_number]
-            #     item["paralell"] = [label for label in parallel_labels if label != item["notation"]]
-    # def get_category_number(notation):
-    #     return notation.split(" ")[0].split(".")[0].split("/")[0] # 071/07 対策
-
-
-
 ndc_dict = {}
 down_dict = {}
 def add_relate_ndc(items):
@@ -236,29 +212,31 @@ def add_relate_ndc(items):
             down_dict[item["notation"][0]] = []
     for item in items:
         if len(item["notation"]) == 1:
-            ndc = item["notation"][0]
             item["up"] = []
             item['down'] = []
+            ndc = item["notation"][0]
             while len(ndc)>1:
                 ndc = ndc[:-1]
                 ndc = re.sub(r"\.$", "", ndc)
                 if ndc in ndc_dict:
                     item["up"].append(ndc_dict[ndc])
-                if ndc in down_dict:
-                    if len(item["notation"][0].replace(".", "")) == (len(ndc.replace(".", "")) + 1):
-                        down_dict[ndc].append({
-                            "notation": item["notation"],
-                            "label@ja": item["label@ja"] if "label@ja" in item else ""
-                        })
+            item["up"].reverse()
+    for item in items:
+        if len(item["notation"]) == 1:
+            for i in item['up']:
+                # 1つ上のNDCに絞る
+                if len(i["notation"][0].replace(".", "")) == (len(item["notation"][0].replace(".", "")) - 1):
+                    down_dict[i["notation"][0]].append({
+                        "notation": item["notation"],
+                        "label@ja": item["label@ja"] if "label@ja" in item else ""
+                    })
     for item in items:
         if len(item["notation"]) == 1:
             item['down'] = down_dict[item["notation"][0]]
     # for item in items:
     #     if len(item["notation"]) == 1:
-    #         if len(item["up"]) >0:
-    #             print(item["up"][0]["notation"])
-    #             print(down_dict[item["up"][0]["notation"]])
-                # item["contain"] = down_dict[item['up'][0]]["down"]
+    #         if len(item["up"]) >0 and item["up"][0]["notation"][0] in down_dict:
+    #             item["contain"] = down_dict[item["up"][0]["notation"][0]]
     return items
 
 
@@ -266,16 +244,16 @@ def add_relate_ndc(items):
 with zipfile.ZipFile("zips/ndc8.zip") as zfile:
     with zfile.open("ndc8.ttl") as readfile:
         ndc8_items = parse_ndc_ttl("ndc8", io.TextIOWrapper(readfile, "utf-8"))
-        ndc8_items = add_relate_ndc(ndc8_items)
+        ndc8_items_updown = add_relate_ndc(ndc8_items)
 
 with zipfile.ZipFile("zips/ndc9.zip") as zfile:
     with zfile.open("ndc9.ttl") as readfile:
         ndc9_items = parse_ndc_ttl("ndc9", io.TextIOWrapper(readfile, "utf-8"))
-        ndc9_items = add_relate_ndc(ndc9_items)
+        ndc9_items_updown = add_relate_ndc(ndc9_items)
 
 # with codecs.open("zips/ndc9.ttl", "r", "utf-8") as file:
 #     ndc9_items = parse_ndc_ttl("ndc9", file)
-#     ndc9_items = add_relate_ndc(ndc9_items)
+#     ndc9_items_updown = add_relate_ndc(ndc9_items)
 
 @api.route("/")
 def index(req, resp):
@@ -283,14 +261,22 @@ def index(req, resp):
 
 @api.route("/ndc8")
 def index(req, resp):
+    updown = req.params.get('updown')
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
-    resp.content = json.dumps(ndc8_items[:1000], ensure_ascii=False)
+    if relupdownate:
+        resp.content = json.dumps(ndc8_items_updown, ensure_ascii=False)
+    else:
+        resp.content = json.dumps(ndc8_items, ensure_ascii=False)
 
 
 @api.route("/ndc9")
 def index(req, resp):
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
-    resp.content = json.dumps(ndc9_items[:1000], ensure_ascii=False)
+    updown = req.params.get('updown')
+    if updown:
+        resp.content = json.dumps(ndc9_items_updown, ensure_ascii=False)
+    else:
+        resp.content = json.dumps(ndc9_items, ensure_ascii=False)
 
 if __name__ == "__main__":
     api.run()
