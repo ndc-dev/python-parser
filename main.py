@@ -55,11 +55,11 @@ def parse_ndc_ttl(ndc_editon, file):
             it_buff = []
             mr_buff = []
             for b in tmp_buff[1:]:
-                b = b.strip()
+                b = re.sub(" ;$", "", b.strip())
 
                 if b=="ndcv:indexedTerm [":
                     isIndexedTerm = True
-                elif isIndexedTerm and b=="] ;":
+                elif isIndexedTerm and b=="]":
                     isIndexedTerm = False
                 elif isIndexedTerm:
                     it_buff.append(b)
@@ -84,7 +84,7 @@ def parse_ndc_ttl(ndc_editon, file):
             for b in buff:
                 if b=="rdfs:seeAlso [":
                     continue
-                m = re.match(r"[^:]+:([^\s]+) ([^;]+) ;?", b)
+                m = re.match(r"[^:]+:([^\s]+) (.+)", b)
                 if m:
                     key = m.groups()[0]
                     value = m.groups()[1]
@@ -99,23 +99,21 @@ def parse_ndc_ttl(ndc_editon, file):
                         lm = re.search(r", (.*?)@en", value)
                         if lm:
                             item["prefLabel@en"] = rm_quote(lm.groups()[0]).split(".")
-                    elif key=="notation" or key=="note":
+                    elif key=="notation":
                         value = rm_quote(value)
                     elif key=="broader":
                         value = value.split(":")[1]
+                    elif key=="note":
+                        value = [rm_quote(x.strip()) for x in value.split(",")]
                     elif key=="seeAlso" or key=="related" or key=="narrower":
-                        mk = re.match(r"[^:]+:[^\s]+ ([^;]+) ?;?", b)
-                        if mk:
-                            value = mk.groups()[0]
-                            value = b.split(key)[1].replace(" ;", "")
-                            value = [x.strip().split(':')[1] for x in value.split(",")]
+                        value = [x.strip().split(':')[1] for x in value.split(",")]
                     item[key] = value
 
             # indexedTermの処理
             it_items = []
             temp_items = []
             for n in it_buff:
-                m = re.match(r"[^:]+:([^\s]+) \"([^;]+)\" ?;?", n)
+                m = re.match(r"[^:]+:([^\s]+) \"(.+)\"", n)
                 if m:
                     temp_items.append(m.groups())
             it_item = []
