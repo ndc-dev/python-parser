@@ -83,6 +83,8 @@ def parse_ndc_ttl(ndc_editon, file):
 
             # 各行処理
             for b in buff:
+                if b=="rdfs:seeAlso [":
+                    continue
                 m = re.match(r"[^:]+:([^\s]+) (.+)", b)
                 if m:
                     key = m.groups()[0]
