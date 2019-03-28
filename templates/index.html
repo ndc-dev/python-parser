@@ -1,18 +1,60 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <style>
+        body {}
+
+        body {
+            font-size: 1.5rem;
+            line-height: 3.2rem;
+            word-wrap: break-word;
+            font-family: "游ゴシック体", YuGothic, "游ゴシック", "Yu Gothic", "メイリオ", sans-serif;
+            font-weight: 500;
+            font-style: nomal;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-font-smoothing: antialiased;
+            color: #313131;
+            width: 800px;
+            margin: 0 auto;
+            background-color: #F7F7F7;
+        }
+
+        h1 {
+            color: #BAAA75;
+            font-size: 4rem;
+            margin-bottom: 100px;
+        }
+
+        footer {
+            margin-top: 100px;
+            border-top: 1px solid #BAAA75;
+            text-align: center;
+        }
+        footer img {
+            max-width: 255px;
+            margin: 80px;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>NDC Linked Data API</h1>
-    <p>
-        <a href="/ndc8">NDC8</a>
-    </p>
-    <p>
-        <a href="/ndc9">NDC9</a>
-    </p>
+    <h1>NDC for Developers API</h1>
+    <ul>
+        <li>
+            <a href="/ndc8">NDC8</a>
+        </li>
+        <li>
+            <a href="/ndc9">NDC9</a>
+        </li>
+    </ul>
+    <footer>
+        <a href="https://calil.jp/"><img src="https://ndc.dev/img/calil.svg" alt="supported by カーリル"></a>
+    </footer>
 </body>
+
 </html>
