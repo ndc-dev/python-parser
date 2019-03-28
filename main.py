@@ -53,7 +53,6 @@ def parse_ndc_ttl(ndc_editon, file):
             buff = []
             isIndexedTerm = False
             it_buff = []
-            isMemberRange = False
             mr_buff = []
             for b in tmp_buff[1:]:
                 b = b.strip()
@@ -64,13 +63,6 @@ def parse_ndc_ttl(ndc_editon, file):
                     isIndexedTerm = False
                 elif isIndexedTerm:
                     it_buff.append(b)
-
-                elif b=="ndcv:memberRange [":
-                    isMemberRange = True
-                elif isMemberRange and b=="]":
-                    isMemberRange = False
-                elif isMemberRange:
-                    mr_buff.append(b)
 
                 else:
                     buff.append(b)
@@ -130,14 +122,7 @@ def parse_ndc_ttl(ndc_editon, file):
                     it_item = []
             item["indexedTerm"] = it_items
 
-            # memberRangeの処理
-            item["memberRange"] = {}
-            for n in mr_buff:
-                # xsd:minInclusive 930.25 ;
-                m = re.match(r"[^:]+:([^\s]+) ([^\s;]+) ?;?", n)
-                if m:
-                    item["memberRange"][m.groups()[0]] = m.groups()[1]
-                
+               
             type_en = item["ndcv"] if "ndcv" in item else item["skos"]
             if type_en=="MainClass":
                 type_en = "Main"
@@ -146,13 +131,9 @@ def parse_ndc_ttl(ndc_editon, file):
 
             type_ja = type_dict[type_en]
 
-            notation = None
-            if "notation" in item:
-                notation = [item["notation"]]
-                if item["notation"] in top_item["narrower"]:
-                    item["broader"] = [""]
-            if len(item["memberRange"]) > 0:
-                notation = item["memberRange"]
+            notation = item["notation"]
+            if item["notation"] in top_item["narrower"]:
+                item["broader"] = [""]
             ndc_dict[item["notation"]] = {
                 "type": type_en,
                 "type@ja": type_ja,
@@ -189,11 +170,11 @@ def parse_ndc_ttl(ndc_editon, file):
     # 中間見出し・範囲項目、seeAlsoのnotationを復元する
     for key, item in ndc_dict.items():
         # 中間見出し・範囲項目
-        if item["type"]=="Collection":
-            item["notation"] = get_range_notations(item["notation"]["minInclusive"], item["notation"]["maxExclusive"])
+        # if item["type"]=="Collection":
         if 'seeAlso' in item and len(item['seeAlso'])>0:
             for see_also in item['seeAlso']:
                 see_alsos = []
+                # rdfs:seeAlso ndc8:231_232
                 if re.search(r'_', see_also):
                     range_see_alsos = get_range_notations(see_also.split('_')[0], see_also.split('_')[1])
                     see_alsos.extend(range_see_alsos)
