@@ -84,28 +84,31 @@ def parse_ndc_ttl(ndc_editon, file):
             for b in buff:
                 if b=="rdfs:seeAlso [":
                     continue
-                m = re.match(r"[^:]+:([^\s]+) ([^;]+) ?;?", b)
+                m = re.match(r"[^:]+:([^\s]+) ([^;]+) ;?", b)
                 if m:
                     key = m.groups()[0]
                     value = m.groups()[1]
                     if key=="label":
                         lm = re.search(r"（?([^（）]+)）?", value)
                         if lm:
-                            value = rm_quote(lm.groups()[0].strip()).split("．")
+                            value = rm_quote(lm.groups()[0]).split("．")
                     elif key=="prefLabel":
                         lm = re.search(r"(.*?)@ja", value)
                         if lm:
-                            item["prefLabel@ja"] = rm_quote(lm.groups()[0].strip()).split("．")
+                            item["prefLabel@ja"] = rm_quote(lm.groups()[0]).split("．")
                         lm = re.search(r", (.*?)@en", value)
                         if lm:
-                            item["prefLabel@en"] = rm_quote(lm.groups()[0].strip()).split(".")
+                            item["prefLabel@en"] = rm_quote(lm.groups()[0]).split(".")
                     elif key=="notation" or key=="note":
-                        value = rm_quote(value.strip())
+                        value = rm_quote(value)
                     elif key=="broader":
-                        value = value.strip().split(":")[1]
+                        value = value.split(":")[1]
                     elif key=="seeAlso" or key=="related" or key=="narrower":
-                        value = b.split(key)[1].replace(" ;", "")
-                        value = [x.strip().split(':')[1] for x in value.split(",")]
+                        mk = re.match(r"[^:]+:[^\s]+ ([^;]+) ?;?", b)
+                        if mk:
+                            value = mk.groups()[0]
+                            value = b.split(key)[1].replace(" ;", "")
+                            value = [x.strip().split(':')[1] for x in value.split(",")]
                     item[key] = value
 
             # indexedTermの処理
