@@ -8,7 +8,7 @@ import responder
 api = responder.API()
 from itertools import takewhile
 
-def parse_ndc_ttl(ndc_name, file):
+def parse_ndc_ttl(ndc_editon, file):
     type_dict = {
         "Main": "類目（第1次区分）",
         "Division": "綱目（第2次区分）",
@@ -21,7 +21,7 @@ def parse_ndc_ttl(ndc_name, file):
     top_item = {
         "type": "Top",
         "type@ja": "最上位",
-        "scheme": ndc_name+":",
+        "editon": ndc_editon,
         "notation": "",
         "label@ja": [],
         "prefLabel@ja": [],
@@ -41,7 +41,7 @@ def parse_ndc_ttl(ndc_name, file):
     section_count = 0
     notations = []
     for line in file:
-        if line.startswith(ndc_name + ":"):
+        if line.startswith("ndc" + ndc_editon + ":"):
             section_count += 1
             if section_count==1: # 1つ目は不要データなので飛ばす
                 continue
@@ -156,7 +156,7 @@ def parse_ndc_ttl(ndc_name, file):
             ndc_dict[item["notation"]] = {
                 "type": type_en,
                 "type@ja": type_ja,
-                "scheme": item["inScheme"],
+                "edition": ndc_editon,
                 "notation": notation,
                 "label@ja": item["label"] if "label" in item else [],
                 "prefLabel@ja": item["prefLabel@ja"] if "prefLabel@ja" in item else [],
@@ -206,11 +206,11 @@ def parse_ndc_ttl(ndc_name, file):
 
 with zipfile.ZipFile("zips/ndc8.zip") as zfile:
     with zfile.open("ndc8.ttl") as readfile:
-        ndc8_items = parse_ndc_ttl("ndc8", io.TextIOWrapper(readfile, "utf-8"))
+        ndc8_items = parse_ndc_ttl("8", io.TextIOWrapper(readfile, "utf-8"))
 
 with zipfile.ZipFile("zips/ndc9.zip") as zfile:
     with zfile.open("ndc9.ttl") as readfile:
-        ndc9_items = parse_ndc_ttl("ndc9", io.TextIOWrapper(readfile, "utf-8"))
+        ndc9_items = parse_ndc_ttl("9", io.TextIOWrapper(readfile, "utf-8"))
 
 # with codecs.open("zips/ndc9.ttl", "r", "utf-8") as file:
 #     ndc9_items = parse_ndc_ttl("ndc9", file)
