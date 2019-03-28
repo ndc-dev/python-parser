@@ -43,8 +43,6 @@ def parse_ndc_ttl(ndc_editon, file):
     for line in file:
         if line.startswith("ndc" + ndc_editon + ":"):
             section_count += 1
-            if section_count>1000:
-                break
             if section_count==1: # 1つ目は不要データなので飛ばす
                 continue
             tmp_buff = [line]
@@ -84,6 +82,8 @@ def parse_ndc_ttl(ndc_editon, file):
 
             # 各行処理
             for b in buff:
+                if b=="rdfs:seeAlso [":
+                    continue
                 m = re.match(r"[^:]+:([^\s]+) ([^;]+) ?;?", b)
                 if m:
                     key = m.groups()[0]
@@ -92,22 +92,21 @@ def parse_ndc_ttl(ndc_editon, file):
                         lm = re.search(r"（?([^（）]+)）?", value)
                         if lm:
                             value = rm_quote(lm.groups()[0]).split("．")
-                    if key=="prefLabel":
+                    elif key=="prefLabel":
                         lm = re.search(r"(.*?)@ja", value)
                         if lm:
                             item["prefLabel@ja"] = rm_quote(lm.groups()[0]).split("．")
                         lm = re.search(r", (.*?)@en", value)
                         if lm:
                             item["prefLabel@en"] = rm_quote(lm.groups()[0]).split(".")
-                        continue
-                    if key=="notation" or key=="note":
+                    elif key=="notation" or key=="note":
                         value = rm_quote(value.strip())
-                    if key=="seeAlso" or key=="related" or key=="narrower":
+                    elif key=="seeAlso" or key=="related" or key=="narrower":
                         value = b.split(key)[1].replace(" ;", "")
                         value = [x.strip().split(':')[1] for x in value.split(",")]
                     item[key] = value
 
-            # indexedTermの処理                
+            # indexedTermの処理
             it_items = []
             temp_items = []
             for n in it_buff:
