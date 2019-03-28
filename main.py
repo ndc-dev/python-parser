@@ -31,7 +31,7 @@ def parse_ndc_ttl(ndc_editon, file):
         "variantOf": None,
         "seeAlso": [],
         "related": [],
-        "broader": [],
+        "broader": None,
         "narrower": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
     }
     ndc_dict = {
@@ -43,6 +43,8 @@ def parse_ndc_ttl(ndc_editon, file):
     for line in file:
         if line.startswith("ndc" + ndc_editon + ":"):
             section_count += 1
+            if section_count>1000:
+                break
             if section_count==1: # 1つ目は不要データなので飛ばす
                 continue
             tmp_buff = [line]
@@ -82,7 +84,7 @@ def parse_ndc_ttl(ndc_editon, file):
 
             # 各行処理
             for b in buff:
-                m = re.match(r"[^:]+:([^\s]+) ([^;]+) ;?", b)
+                m = re.match(r"[^:]+:([^\s]+) ([^;]+) ?;?", b)
                 if m:
                     key = m.groups()[0]
                     value = m.groups()[1]
@@ -98,9 +100,9 @@ def parse_ndc_ttl(ndc_editon, file):
                         if lm:
                             item["prefLabel@en"] = rm_quote(lm.groups()[0]).split(".")
                         continue
-                    if key=="note" or key=="notation":
-                        value = rm_quote(value)
-                    if key=="seeAlso" or key=="related" or key=="broader" or key=="narrower":
+                    if key=="notation" or key=="note":
+                        value = rm_quote(value.strip())
+                    if key=="seeAlso" or key=="related" or key=="narrower":
                         value = b.split(key)[1].replace(" ;", "")
                         value = [x.strip().split(':')[1] for x in value.split(",")]
                     item[key] = value
@@ -147,7 +149,7 @@ def parse_ndc_ttl(ndc_editon, file):
                 "variantOf": item["variantOf"] if "variantOf" in item else None,
                 "seeAlso": item["seeAlso"] if "seeAlso" in item else [],
                 "related": item["related"] if "related" in item else [],
-                "broader": item["broader"] if "broader" in item else [],
+                "broader": item["broader"] if "broader" in item else None,
                 "narrower": item["narrower"] if "narrower" in item else [],
             }
 
