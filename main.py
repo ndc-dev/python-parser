@@ -91,16 +91,18 @@ def parse_ndc_ttl(ndc_editon, file):
                     if key=="label":
                         lm = re.search(r"（?([^（）]+)）?", value)
                         if lm:
-                            value = rm_quote(lm.groups()[0]).split("．")
+                            value = rm_quote(lm.groups()[0].strip()).split("．")
                     elif key=="prefLabel":
                         lm = re.search(r"(.*?)@ja", value)
                         if lm:
-                            item["prefLabel@ja"] = rm_quote(lm.groups()[0]).split("．")
+                            item["prefLabel@ja"] = rm_quote(lm.groups()[0].strip()).split("．")
                         lm = re.search(r", (.*?)@en", value)
                         if lm:
-                            item["prefLabel@en"] = rm_quote(lm.groups()[0]).split(".")
+                            item["prefLabel@en"] = rm_quote(lm.groups()[0].strip()).split(".")
                     elif key=="notation" or key=="note":
                         value = rm_quote(value.strip())
+                    elif key=="broader":
+                        value = value.strip().split(":")[1]
                     elif key=="seeAlso" or key=="related" or key=="narrower":
                         value = b.split(key)[1].replace(" ;", "")
                         value = [x.strip().split(':')[1] for x in value.split(",")]
