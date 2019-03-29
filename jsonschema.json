@@ -24,8 +24,7 @@
         "type": {
             "$id": "#/properties/type",
             "type": "string",
-            "title": "The Type Schema",
-            "default": "",
+            "title": "分類項目の種類（英語）",
             "examples": [
                 "Top",
                 "Main",
@@ -40,8 +39,7 @@
         "type@ja": {
             "$id": "#/properties/type@ja",
             "type": "string",
-            "title": "The Type@ja Schema",
-            "default": "",
+            "title": "分類項目の種類（日本語）",
             "examples": [
                 "最上位",
                 "類目（第1次区分）",
@@ -56,8 +54,7 @@
         "edition": {
             "$id": "#/properties/edition",
             "type": "string",
-            "title": "The Edition Schema",
-            "default": "",
+            "title": "NDCの版次",
             "examples": [
                 "8",
                 "9"
@@ -67,8 +64,7 @@
         "notation": {
             "$id": "#/properties/notation",
             "type": "string",
-            "title": "The Notation Schema",
-            "default": "",
+            "title": "分類記号",
             "examples": [
                 "",
                 "0",
@@ -86,11 +82,7 @@
                 "string", 
                 "null"
             ],
-            "title": "The Label@ja Schema",
-            "default": "",
-            "examples": [
-                "哲学各論"
-            ],
+            "title": "文脈付き分類項目名",
             "pattern": "^(.*)$"
         },
         "prefLabel@ja": {
@@ -99,11 +91,7 @@
                 "string", 
                 "null"
             ],
-            "title": "The Preflabel@ja Schema",
-            "default": null,
-            "examples": [
-                "哲学各論"
-            ],
+            "title": "分類項目名（日本語）",
             "pattern": "^(.*)$"
         },
         "prefLabel@en": {
@@ -112,28 +100,20 @@
                 "string", 
                 "null"
             ],
-            "title": "The Preflabel@en Schema",
-            "default": null,
-            "examples": [
-                null
-            ]
+            "title": "分類項目名（英語）"
         },
         "indexedTerm@ja": {
             "$id": "#/properties/indexedTerm@ja",
             "type": "array",
-            "title": "The Indexedterm@ja Schema",
+            "title": "索引語",
             "items": {
                 "$id": "#/properties/indexedTerm@ja/items",
                 "type": "array",
-                "title": "The Items Schema",
+                "title": "索引語",
                 "items": {
-                    "$id": "#/properties/note@ja/items/items",
+                    "$id": "#/properties/note@ja/items/item",
                     "type": "string",
-                    "title": "The Items Schema",
-                    "default": "",
-                    "examples": [
-                        ""
-                    ],
+                    "title": "索引語",
                     "pattern": "^(.*)$"
                 }
             }
@@ -145,11 +125,7 @@
             "items": {
                 "$id": "#/properties/note@ja/items",
                 "type": "string",
-                "title": "The Items Schema",
-                "default": "",
-                "examples": [
-                    ""
-                ],
+                "title": "注記, 関連分類項目名, 注参照",
                 "pattern": "^(.*)$"
             }
         },
@@ -159,11 +135,7 @@
                 "string", 
                 "null"
             ],
-            "title": "The Variantof Schema",
-            "default": null,
-            "examples": [
-                null
-            ]
+            "title": "「を見よ」参照先"
         },
         "seeAlso": {
             "$id": "#/properties/seeAlso",
@@ -171,21 +143,16 @@
                 "string", 
                 "null"
             ],
-            "title": "The Seealso Schema",
-            "default": null,
-            "examples": [
-                null
-            ]
+            "title": "注参照の参照先"
         },
         "related": {
             "$id": "#/properties/related",
             "type": "array",
-            "title": "The Related Schema",
+            "title": "「をも見よ」参照先",
             "items": {
                 "$id": "#/properties/related/items",
                 "type": "string",
-                "title": "The Items Schema",
-                "default": "",
+                "title": "分類番号",
                 "examples": [
                     "110",
                     "496.1_.4",
@@ -209,25 +176,17 @@
                 "string", 
                 "null"
             ],
-            "title": "The Broader Schema",
-            "default": null,
-            "examples": [
-                "1"
-            ],
+            "title": "上位分類項目",
             "pattern": "^(|[\\d\\./]+)$"
         },
         "narrower": {
             "$id": "#/properties/narrower",
             "type": "array",
-            "title": "The Narrower Schema",
+            "title": "下位分類項目",
             "items": {
                 "$id": "#/properties/narrower/items",
                 "type": "string",
                 "title": "The Items Schema",
-                "default": "",
-                "examples": [
-                    "110"
-                ],
                 "pattern": "^([\\d\\./]+)$"
             }
         }
