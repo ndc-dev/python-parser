@@ -25,7 +25,7 @@
             "$id": "#/properties/type",
             "type": "string",
             "title": "分類項目の種類（英語）",
-            "examples": [
+            "enum": [
                 "Top",
                 "Main",
                 "Division",
@@ -33,14 +33,13 @@
                 "Concept",
                 "Variant",
                 "Collection"
-            ],
-            "pattern": "^(.*)$"
+            ]
         },
         "type@ja": {
             "$id": "#/properties/type@ja",
             "type": "string",
             "title": "分類項目の種類（日本語）",
-            "examples": [
+            "enum": [
                 "最上位",
                 "類目（第1次区分）",
                 "綱目（第2次区分）",
@@ -48,18 +47,16 @@
                 "細目",
                 "二者択一項目",
                 "中間見出し・範囲項目"
-            ],
-            "pattern": "^(.*)$"
+            ]
         },
         "edition": {
             "$id": "#/properties/edition",
             "type": "string",
             "title": "NDCの版次",
-            "examples": [
+            "enum": [
                 "8",
                 "9"
-            ],
-            "pattern": "^(.*)$"
+            ]
         },
         "notation": {
             "$id": "#/properties/notation",
@@ -129,14 +126,6 @@
                 "pattern": "^(.*)$"
             }
         },
-        "variantOf": {
-            "$id": "#/properties/variantOf",
-            "type": [
-                "string", 
-                "null"
-            ],
-            "title": "「を見よ」参照先"
-        },
         "seeAlso": {
             "$id": "#/properties/seeAlso",
             "type": [
@@ -144,6 +133,14 @@
                 "null"
             ],
             "title": "注参照の参照先"
+        },
+        "variantOf": {
+            "$id": "#/properties/variantOf",
+            "type": [
+                "string", 
+                "null"
+            ],
+            "title": "「を見よ」参照先"
         },
         "related": {
             "$id": "#/properties/related",
