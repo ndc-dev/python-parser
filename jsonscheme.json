@@ -1,0 +1,222 @@
+{
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/root.json",
+    "type": "object",
+    "title": "The Root Schema",
+    "required": [
+        "type",
+        "type@ja",
+        "edition",
+        "notation",
+        "label@ja",
+        "prefLabel@ja",
+        "prefLabel@en",
+        "indexedTerm@ja",
+        "note@ja",
+        "variantOf",
+        "seeAlso",
+        "related",
+        "broader",
+        "narrower"
+    ],
+    "properties": {
+        "type": {
+            "$id": "#/properties/type",
+            "type": "string",
+            "title": "The Type Schema",
+            "default": "",
+            "examples": [
+                "Top",
+                "Main",
+                "Division",
+                "Section",
+                "Concept",
+                "Variant",
+                "Collection"
+            ],
+            "pattern": "^(.*)$"
+        },
+        "type@ja": {
+            "$id": "#/properties/type@ja",
+            "type": "string",
+            "title": "The Type@ja Schema",
+            "default": "",
+            "examples": [
+                "最上位",
+                "類目（第1次区分）",
+                "綱目（第2次区分）",
+                "要目（第3次区分）",
+                "細目",
+                "二者択一項目",
+                "中間見出し・範囲項目"
+            ],
+            "pattern": "^(.*)$"
+        },
+        "edition": {
+            "$id": "#/properties/edition",
+            "type": "string",
+            "title": "The Edition Schema",
+            "default": "",
+            "examples": [
+                "8",
+                "9"
+            ],
+            "pattern": "^(.*)$"
+        },
+        "notation": {
+            "$id": "#/properties/notation",
+            "type": "string",
+            "title": "The Notation Schema",
+            "default": "",
+            "examples": [
+                "0",
+                "1",
+                "11",
+                "111",
+                "111.5"
+            ],
+            "pattern": "^([\\d\\./]+)$"
+        },
+        "label@ja": {
+            "$id": "#/properties/label@ja",
+            "type": [
+                "string", 
+                "null"
+            ],
+            "title": "The Label@ja Schema",
+            "default": "",
+            "examples": [
+                "哲学各論"
+            ],
+            "pattern": "^(.*)$"
+        },
+        "prefLabel@ja": {
+            "$id": "#/properties/prefLabel@ja",
+            "type": [
+                "string", 
+                "null"
+            ],
+            "title": "The Preflabel@ja Schema",
+            "default": null,
+            "examples": [
+                "哲学各論"
+            ],
+            "pattern": "^(.*)$"
+        },
+        "prefLabel@en": {
+            "$id": "#/properties/prefLabel@en",
+            "type": [
+                "string", 
+                "null"
+            ],
+            "title": "The Preflabel@en Schema",
+            "default": null,
+            "examples": [
+                null
+            ]
+        },
+        "indexedTerm@ja": {
+            "$id": "#/properties/indexedTerm@ja",
+            "type": "array",
+            "title": "The Indexedterm@ja Schema",
+            "items": {
+                "$id": "#/properties/indexedTerm@ja/items",
+                "type": "array",
+                "title": "The Items Schema",
+                "items": {
+                    "$id": "#/properties/note@ja/items/items",
+                    "type": "string",
+                    "title": "The Items Schema",
+                    "default": "",
+                    "examples": [
+                        ""
+                    ],
+                    "pattern": "^(.*)$"
+                }
+            }
+        },
+        "note@ja": {
+            "$id": "#/properties/note@ja",
+            "type": "array",
+            "title": "The Note@ja Schema",
+            "items": {
+                "$id": "#/properties/note@ja/items",
+                "type": "string",
+                "title": "The Items Schema",
+                "default": "",
+                "examples": [
+                    ""
+                ],
+                "pattern": "^(.*)$"
+            }
+        },
+        "variantOf": {
+            "$id": "#/properties/variantOf",
+            "type": [
+                "string", 
+                "null"
+            ],
+            "title": "The Variantof Schema",
+            "default": null,
+            "examples": [
+                null
+            ]
+        },
+        "seeAlso": {
+            "$id": "#/properties/seeAlso",
+            "type": [
+                "string", 
+                "null"
+            ],
+            "title": "The Seealso Schema",
+            "default": null,
+            "examples": [
+                null
+            ]
+        },
+        "related": {
+            "$id": "#/properties/related",
+            "type": "array",
+            "title": "The Related Schema",
+            "items": {
+                "$id": "#/properties/related/items",
+                "type": "string",
+                "title": "The Items Schema",
+                "default": "",
+                "examples": [
+                    "110"
+                ],
+                "pattern": "^([\\d\\./]+)$"
+            }
+        },
+        "broader": {
+            "$id": "#/properties/broader",
+            "type": [
+                "string", 
+                "null"
+            ],
+            "title": "The Broader Schema",
+            "default": null,
+            "examples": [
+                "1"
+            ],
+            "pattern": "^(.*)$"
+        },
+        "narrower": {
+            "$id": "#/properties/narrower",
+            "type": "array",
+            "title": "The Narrower Schema",
+            "items": {
+                "$id": "#/properties/narrower/items",
+                "type": "string",
+                "title": "The Items Schema",
+                "default": "",
+                "examples": [
+                    "110"
+                ],
+                "pattern": "^([\\d\\./]+)$"
+            }
+        }
+    }
+}
