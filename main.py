@@ -214,7 +214,7 @@ def ndc8(req, resp):
     with codecs.open("jsonschema.json", "r", "utf-8") as file:
         json_schema = json.load(file)
         resp.headers = {"Content-Type": "application/json; charset=utf-8"}
-        resp.content = json.dumps(json_schema, ensure_ascii=False)
+        resp.content = json.dumps(json_schema, indent=4, ensure_ascii=False)
 
 if __name__ == "__main__":
     api.run()

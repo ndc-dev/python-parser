@@ -182,7 +182,10 @@
                 "$id": "#/properties/narrower/items",
                 "type": "string",
                 "title": "The Items Schema",
-                "pattern": "^([\\d\\./]+)$"
+                "examples": [
+                    "120_139"
+                ],
+                "pattern": "^([\\d\\./_]+)$"
             }
         }
     }
