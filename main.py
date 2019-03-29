@@ -187,7 +187,7 @@ with zipfile.ZipFile("zips/ndc9.zip") as zfile:
 def index(req, resp):
     resp.content = api.template("index.html")
 
-@api.route("/ndc8")
+@api.route("/ndc8/")
 def ndc8_index(req, resp):
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
     resp.content = json.dumps(ndc8_items, ensure_ascii=False)
@@ -197,7 +197,7 @@ def ndc8(req, resp, *, ndc):
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
     resp.content = json.dumps(ndc8_items_source[ndc], indent=4, ensure_ascii=False)
 
-@api.route("/ndc9")
+@api.route("/ndc9/")
 def ndc9_index(req, resp):
     resp.headers = {"Content-Type": "application/json; charset=utf-8"}
     resp.content = json.dumps(ndc9_items, ensure_ascii=False)
