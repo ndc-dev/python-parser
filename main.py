@@ -21,7 +21,7 @@ def parse_ndc_ttl(ndc_editon, file):
     top_item = {
         "type": "Top",
         "type@ja": "最上位",
-        "editon": ndc_editon,
+        "edition": ndc_editon,
         "notation": "",
         "label@ja": None,
         "prefLabel@ja": None,
@@ -138,7 +138,7 @@ def parse_ndc_ttl(ndc_editon, file):
 
             notation = item["notation"]
             if item["notation"] in top_item["narrower"]:
-                item["broader"] = [""]
+                item["broader"] = ""
             ndc_dict[item["notation"]] = {
                 "type": type_en,
                 "type@ja": type_ja,

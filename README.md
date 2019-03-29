@@ -5,6 +5,10 @@
 pipenv install  
 pipenv run python main.py
 
+## JSON Schema
+
+pipenv run python validate.py
+
 ## Docker
 
 docker build . -t calil/ndc.dev  
