@@ -7,6 +7,7 @@ pipenv run python main.py
 
 ## JSON Schema
 
+[jsonschema.json](https://github.com/ndc-dev/python-parser/blob/master/jsonschema.json)  
 pipenv run python validate.py
 
 ## Docker
@@ -17,5 +18,4 @@ docker push calil/ndc.dev
 
 ## Demo
 
-[https://ndc-dev.arukascloud.io/ndc8](https://ndc-dev.arukascloud.io/ndc8)  
-[https://ndc-dev.arukascloud.io/ndc9](https://ndc-dev.arukascloud.io/ndc9)
+[https://ndc-api-beta.arukascloud.io/](https://ndc-api-beta.arukascloud.io/)
