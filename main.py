@@ -4,9 +4,17 @@ import copy
 import codecs
 import io
 import zipfile
-import responder
-api = responder.API()
 from itertools import takewhile
+import responder
+api = responder.API(
+    cors=True, 
+    cors_params={
+        'allow_origins': ['*'],
+        'allow_methods': ['GET'],
+        'allow_headers': ['*']
+    }
+)
+print(api.cors_params)
 
 def parse_ndc_ttl(ndc_editon, file):
     type_dict = {
