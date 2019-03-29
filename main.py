@@ -209,5 +209,13 @@ def ndc8(req, resp, *, ndc):
     resp.content = json.dumps(ndc9_items_source[ndc], ensure_ascii=False)
 
 
+@api.route("/schema")
+def ndc8(req, resp):
+    with codecs.open("jsonschema.json", "r", "utf-8") as file:
+        json_schema = json.load(file)
+        resp.headers = {"Content-Type": "application/json; charset=utf-8"}
+        resp.content = json.dumps(json_schema, ensure_ascii=False)
+
 if __name__ == "__main__":
     api.run()
+
