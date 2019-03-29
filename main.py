@@ -14,7 +14,6 @@ api = responder.API(
         'allow_headers': ['*']
     }
 )
-print(api.cors_params)
 
 def parse_ndc_ttl(ndc_editon, file):
     type_dict = {
@@ -197,32 +196,44 @@ def index(req, resp):
 
 @api.route("/ndc8.json")
 def ndc8_index(req, resp):
-    resp.headers = {"Content-Type": "application/json; charset=utf-8"}
+    resp.headers["Content-Type"] = "application/json; charset=utf-8"
+    resp.headers['access-control-allow-origin'] = '*'
+    resp.headers['access-control-allow-headers'] = '*'
     resp.content = json.dumps(ndc8_items, ensure_ascii=False)
 
 @api.route("/ndc8/")
 def ndc8(req, resp):
-    resp.headers = {"Content-Type": "application/json; charset=utf-8"}
+    resp.headers["Content-Type"] = "application/json; charset=utf-8"
+    resp.headers['access-control-allow-origin'] = '*'
+    resp.headers['access-control-allow-headers'] = '*'
     resp.content = json.dumps(ndc8_items_source[""], indent=4, ensure_ascii=False)
 
 @api.route("/ndc8/{ndc}")
 def ndc8(req, resp, *, ndc):
-    resp.headers = {"Content-Type": "application/json; charset=utf-8"}
+    resp.headers["Content-Type"] = "application/json; charset=utf-8"
+    resp.headers['access-control-allow-origin'] = '*'
+    resp.headers['access-control-allow-headers'] = '*'
     resp.content = json.dumps(ndc8_items_source[ndc], indent=4, ensure_ascii=False)
 
 @api.route("/ndc9.json")
 def ndc9_index(req, resp):
-    resp.headers = {"Content-Type": "application/json; charset=utf-8"}
+    resp.headers["Content-Type"] = "application/json; charset=utf-8"
+    resp.headers['access-control-allow-origin'] = '*'
+    resp.headers['access-control-allow-headers'] = '*'
     resp.content = json.dumps(ndc9_items, ensure_ascii=False)
 
 @api.route("/ndc9/")
 def ndc8(req, resp):
-    resp.headers = {"Content-Type": "application/json; charset=utf-8"}
+    resp.headers["Content-Type"] = "application/json; charset=utf-8"
+    resp.headers['access-control-allow-origin'] = '*'
+    resp.headers['access-control-allow-headers'] = '*'
     resp.content = json.dumps(ndc9_items_source[""], indent=4, ensure_ascii=False)
 
 @api.route("/ndc9/{ndc}")
 def ndc8(req, resp, *, ndc):
-    resp.headers = {"Content-Type": "application/json; charset=utf-8"}
+    resp.headers["Content-Type"] = "application/json; charset=utf-8"
+    resp.headers['access-control-allow-origin'] = '*'
+    resp.headers['access-control-allow-headers'] = '*'
     resp.content = json.dumps(ndc9_items_source[ndc], indent=4, ensure_ascii=False)
 
 
@@ -230,7 +241,9 @@ def ndc8(req, resp, *, ndc):
 def ndc8(req, resp):
     with codecs.open("jsonschema.json", "r", "utf-8") as file:
         json_schema = json.load(file)
-        resp.headers = {"Content-Type": "application/json; charset=utf-8"}
+        resp.headers["Content-Type"] = "application/json; charset=utf-8"
+        resp.headers['access-control-allow-origin'] = '*'
+        resp.headers['access-control-allow-headers'] = '*'
         resp.content = json.dumps(json_schema, indent=4, ensure_ascii=False)
 
 if __name__ == "__main__":
