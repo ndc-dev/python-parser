@@ -9,8 +9,8 @@ pip install ndc_parser
 ## Sample
 [sample.py](https://github.com/ndc-dev/python-parser/blob/master/sample.py)
 
-## Demo
-[https://ndc-api-beta.arukascloud.io/](https://ndc-api-beta.arukascloud.io/)
+## Usecase
+[https://github.com/ndc-dev/api](https://github.com/ndc-dev/api)  
 
 ## build
 pip install wheel  
