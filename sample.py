@@ -28,4 +28,3 @@ print(ndc9_items)
 
 # with codecs.open("zips/ndc9.ttl", "r", "utf-8") as file:
 #     ndc9_items = ndc_parser.parse("ndc9", file)
-#     ndc9_items_updown = add_relate_ndc(ndc9_items)
