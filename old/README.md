@@ -1,4 +1,4 @@
-# Python Parser for NDC
+# NDC Python Parser
 
 ## Development
 
