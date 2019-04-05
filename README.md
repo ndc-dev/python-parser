@@ -7,7 +7,7 @@ pipenv run python main.py
 
 ## JSON Schema
 
-[jsonschema.json](https://github.com/ndc-dev/python-parser/blob/master/jsonschema.json)  
+[jsonschema.json](https://ndc-api-beta.arukascloud.io/schema)  
 pipenv run python validate.py
 
 ## Docker
